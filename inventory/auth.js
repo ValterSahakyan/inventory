@@ -22,7 +22,7 @@ module.exports = async function(req,res,next){
         });
 
         if(req.params.type === 'users' && userData.type !== 'admin'){
-            res.status(401).send('Unauthorized');
+            return res.status(401).send('Unauthorized');
         }
         next();
     } catch (error) {
