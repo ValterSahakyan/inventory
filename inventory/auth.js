@@ -1,7 +1,7 @@
 const jwt = require('jsonwebtoken')
 const {ObjectId, MongoClient} = require("mongodb");
 
-const url = "mongodb://newinventory:TgCL0gHQjtZkQAkfkXpNDBFka8Vxpi2BHp68FAN6g5ej4tJmBmcSUidlFP3tphsZd1DcqKKgH0RlACDb0L2NVw==@newinventory.mongo.cosmos.azure.com:10255/?ssl=true&retrywrites=false&maxIdleTimeMS=120000&appName=@newinventory@";
+const url = "mongodb://vrushmongodb:oxb6Zbz9DH4ywByVBI26azmexKZzMI09Qmz147vQC9ftOOWCgOSr1kRwHDcV7wHSBrSfsoisM0XqACDbMzY4dQ==@vrushmongodb.mongo.cosmos.azure.com:10255/?ssl=true&replicaSet=globaldb&retrywrites=false&maxIdleTimeMS=120000&appName=@vrushmongodb@";
 
 const client = new MongoClient(url);
 client.connect().then(() => {});

@@ -13,7 +13,7 @@ const app = express();
 app.use(bodyParser.json());
 app.use(cors());
 app.use(bodyParser.urlencoded({ extended: false }));
-const url = "mongodb://newinventory:TgCL0gHQjtZkQAkfkXpNDBFka8Vxpi2BHp68FAN6g5ej4tJmBmcSUidlFP3tphsZd1DcqKKgH0RlACDb0L2NVw==@newinventory.mongo.cosmos.azure.com:10255/?ssl=true&retrywrites=false&maxIdleTimeMS=120000&appName=@newinventory@";
+const url = "mongodb://vrushmongodb:oxb6Zbz9DH4ywByVBI26azmexKZzMI09Qmz147vQC9ftOOWCgOSr1kRwHDcV7wHSBrSfsoisM0XqACDbMzY4dQ==@vrushmongodb.mongo.cosmos.azure.com:10255/?ssl=true&replicaSet=globaldb&retrywrites=false&maxIdleTimeMS=120000&appName=@vrushmongodb@";
 
 const client = new MongoClient(url);
 client.connect().then(() => { console.log('Db connected') });
@@ -31,9 +31,20 @@ app.get('/item/:type', auth, async (req, res) => {
 // create
 app.post('/item/:type', auth, async (req, res) => {
     const collection = db.collection(req.params.type);
-    const query = { title: req.body.title};
+    const query = { };
     const update = { $set: req.body };
     const options = {upsert: true, new: true};
+
+    if(req.params.type === "users"){
+        query['email'] = req.body.email;
+        const salt = await bcrept.genSalt(10);
+        const hashedPassword = await bcrept.hash(req.body.password,salt)
+        update['$set'] = { ...req.body, password: hashedPassword };
+    }else{
+        query['title'] = req.body.title;
+        update['$set'] = req.body;
+    }
+
     const item = await collection.updateOne(query, update, options);
     res.send(item);
 
@@ -42,8 +53,17 @@ app.post('/item/:type', auth, async (req, res) => {
 app.post('/item/:type/:id', auth, async (req, res) => {
     const collection = db.collection(req.params.type);
     const query = { _id: ObjectId(req.params.id)};
-    const update = { $set: req.body };
+    const update = { };
     const options = {upsert: true, new: true};
+
+    if(req.params.type === "users"){
+        const salt = await bcrept.genSalt(10);
+        const hashedPassword = await bcrept.hash(req.body.password,salt)
+        update['$set'] = { ...req.body, password: hashedPassword };
+    }else{
+        update['$set'] = req.body;
+    }
+
     const item = await collection.updateOne(query, update, options);
     res.send(item);
 
@@ -134,13 +154,12 @@ app.post('/signup', async(req,res)=>{
     const collection = db.collection('users');
     const query = { email: req.body.email };
     const update = { $set: {
-        password: hashedPassword,
-        email: req.body.email,
-        type: req.body.type,
-        full_name: req.body.full_name,
-        phone: req.body.phone,
+            password: hashedPassword,
+            email: req.body.email,
+            type: req.body.type,
+            full_name: req.body.full_name,
+            phone: req.body.phone,
         }
-
     };
     const options = {upsert: true, new: true};
     const user = await collection.updateOne(query, update, options);
@@ -178,21 +197,16 @@ app.post('/signin',async( req, res )=>{
  * get user data
  */
 app.get('/auth/user', auth, async( req, res )=>{
-    // Checking if the uemail exists
     const userData = await db.collection('users').findOne({
         _id: ObjectId(req.user._id)
     });
     return res.status(200).json({user: {
-        _id: userData._id,
-        email: userData.email,
-        full_name: userData.full_name,
-        type: userData.type
-    }});
+            _id: userData._id,
+            email: userData.email,
+            full_name: userData.full_name,
+            type: userData.type
+        }});
 })
-
-
-
-
 
 app.listen(5000);
 
