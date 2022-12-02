@@ -52,6 +52,18 @@ const routes = [
         component: () => import("@/views/Search"),
         children:[]
     },
+    {
+        path: "/sigin",
+        name: "sigin",
+        component: () => import("@/views/Sigin"),
+        children:[]
+    },
+    {
+        path: "/users",
+        name: "users",
+        component: () => import("@/views/Users"),
+        children:[]
+    },
 ];
 
 const router = createRouter({

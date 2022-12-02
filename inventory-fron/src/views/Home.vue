@@ -15,37 +15,42 @@
       <div class="col-md-12 col-lg-6">
         <div class="card" style="border: none;">
           <div class="card-body d-flex justify-content-center">
-            <ChartView/>
+            <Chart />
           </div>
         </div>
       </div>
     </div>
-    <div class="card" style="border: none;">
-      <div class="row">
-        <div v-for="[key, value] of Object.entries(categories)" class="col-6 col-md-4 col-lg-3" style="padding: 0;" :key="key">
-          <div class="card-body">
-            <router-link class="card text-decoration-none" style="width: auto;" :to="value.link">
-              <div style="background: rgba(0, 0, 0, 0.175); width: auto; height: 250px;">
-                <img :src="value.img" alt="..." style="height: 100%; width: 100%;">
-              </div>
+    <template v-if="isLoggedIn">
+      <div class="card" style="border: none;">
+        <div class="row">
+          <div v-for="[key, value] of Object.entries(categories)" class="col-6 col-md-4 col-lg-3" style="padding: 0;" :key="key">
+            <div class="card-body">
+              <router-link class="card text-decoration-none" style="width: auto;" :to="value.link">
+                <div style="background: rgba(0, 0, 0, 0.175); width: auto; height: 250px;">
+                  <img :src="value.img" alt="..." style="height: 100%; width: 100%;">
+                </div>
 
-              <div class="card-body">
-                <h5 class="card-title text-start text-black text-decoration-none">{{ value.title }}</h5>
-              </div>
-            </router-link>
+                <div class="card-body">
+                  <h5 class="card-title text-start text-black text-decoration-none">{{ value.title }}</h5>
+                </div>
+              </router-link>
+            </div>
           </div>
         </div>
       </div>
-    </div>
+    </template>
   </div>
 </template>
 
 <script>
-import ChartView from "@/views/ChartView";
-
+import Chart from '@/components/Chart';
+import { mapGetters } from "vuex";
 export default {
   name: 'HomeComponent',
-  components: {ChartView},
+  components: { Chart },
+  computed: {
+    ...mapGetters(["isLoggedIn"])
+  },
   data() {
     return {
       categories: [
@@ -55,6 +60,6 @@ export default {
           { title: "Materials", link: "/materials", img: "https://image.shutterstock.com/image-illustration/set-construction-materials-tools-isolated-260nw-691574113.jpg" }
       ],
     }
-  },
+  }
 }
 </script>

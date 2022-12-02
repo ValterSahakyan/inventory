@@ -14,13 +14,14 @@
 </template>
 
 <script>
+
 export default {
   name: 'ToolBar',
   props: ['page', 'link', 'detail'],
   methods: {
     createNewItem(){
       this.$router.push(this.link)
-    },
+    }
   }
 }
 </script>

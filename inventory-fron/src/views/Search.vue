@@ -48,7 +48,9 @@ export default {
         title: this.title
       }, {
         headers: {
-          'Accept': 'application/json'
+          'Accept': 'application/json',
+          'x-access-token': localStorage.getItem('token')
+
         }
       }).then((res) => {
         this.data = res.data.data;

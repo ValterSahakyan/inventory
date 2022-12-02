@@ -53,7 +53,9 @@ export default {
     if(this.id){
       axios.get(`http://localhost:5000/item/${this.page}/${this.id}`,{
         headers:{
-          'Accept': 'application/json'
+          'Accept': 'application/json',
+          'x-access-token': localStorage.getItem('token')
+
         }
       }).then((res) => {
         this.fields.map((item) => {
@@ -79,7 +81,9 @@ export default {
       })
       axios.post(`http://localhost:5000/item/${this.page}/${this.id ?? ''}`,data,{
         headers:{
-          'Accept': 'application/json'
+          'Accept': 'application/json',
+          'x-access-token': localStorage.getItem('token')
+
         }
       }).then(() => {
         this.fields.map((item) => {item.value = ''})
@@ -90,7 +94,9 @@ export default {
     deleteItems(){
       axios.delete(`http://localhost:5000/item/${this.page}/${this.id}`,{
         headers:{
-          'Accept': 'application/json'
+          'Accept': 'application/json',
+          'x-access-token': localStorage.getItem('token')
+
         }
       }).then(() => {
         this.$router.push(`/${this.page}`)

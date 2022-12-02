@@ -1,11 +1,10 @@
 <template>
-  <div class="container mt-4">
-    <Toolbar link="/create/gifts" page="Gifts" />
+     <div class="container mt-4">
+    <Toolbar link="/create/users" page="Users" />
     <div class="container">
       <div class="row">
-        <div v-for="[key, value] of Object.entries(gifts)" class="col-6 col-md-4 col-lg-4 mt-2" style="padding: 1px;" :key="key">
-          <Card :id="value._id" :url="value.image" :title="value.title" :description="value.description"
-                :updated="value.updated" :editLink="`/update/gifts/${value._id}`" type="Gifts"/>
+        <div v-for="[key, value] of Object.entries(users)" class="col-6 col-md-3 col-lg-3 mt-2" style="padding: 1px;" :key="key">
+          <UserCard :id="value._id" :email="value.email" :full_name="value.full_name" :editLink="`/update/users/${value._id}`" type="Users"/>
         </div>
       </div>
       <nav aria-label="Page navigation example" class="mt-3">
@@ -17,47 +16,48 @@
       </nav>
     </div>
   </div>
-</template>
+  </template>
+
+
 
 <script>
 import Toolbar from '@/components/Toolbar';
-import Card from '@/components/Card';
+import UserCard from '@/components/UserCard';
 import axios from "axios";
 
 export default {
-  name: 'GiftsComponent', components: {
-    Toolbar, Card
+  name: 'UsersComponent', components: {
+    Toolbar, UserCard
   },
   data() {
     return {
-      gifts: [ ],
+      users: [ ],
       totalCount: 0,
       page: 1,
       limit: 6
     }
   },
   mounted() {
-    axios.get(`http://localhost:5000/item/gifts?offset=${(this.page - 1)*this.limit}&limit=${this.limit}`,{
+    axios.get(`http://localhost:5000/item/users?offset=${(this.page - 1)*this.limit}&limit=${this.limit}`,{
       headers:{
         'Accept': 'application/json',
         'x-access-token': localStorage.getItem('token')
 
       }
     }).then((res) => {
-      this.gifts = res.data.items;
+      this.users = res.data.items;
       this.totalCount = res.data.totalCount;
     })
   },
   watch:{
     page(){
-      axios.get(`http://localhost:5000/item/gifts?offset=${(this.page - 1)*this.limit}&limit=${this.limit}`,{
+      axios.get(`http://localhost:5000/item/users?offset=${(this.page - 1)*this.limit}&limit=${this.limit}`,{
         headers:{
           'Accept': 'application/json',
           'x-access-token': localStorage.getItem('token')
-
         }
       }).then((res) => {
-        this.gifts = res.data.items;
+        this.users = res.data.items;
       })
     }
   },

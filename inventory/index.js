@@ -2,26 +2,25 @@ const dotenv = require('dotenv');
 dotenv.config();
 
 const express = require('express');
-const path = require('path');
 const cors = require('cors');
 const bodyParser = require('body-parser');
 const { ObjectId } = require('mongodb');
 const MongoClient = require('mongodb').MongoClient;
-
+const jwt = require('jsonwebtoken');
+const bcrept = require('bcryptjs');
+const auth = require('./auth');
 const app = express();
 app.use(bodyParser.json());
 app.use(cors());
 app.use(bodyParser.urlencoded({ extended: false }));
-app.use(express.static(path.join(__dirname, 'public')));
-
-const url = "mongodb://newinventory:GbJFnwnfOgppRxRYt7SheG29aamVoW69o1I1lF9jNcOS99v0Knp1X9DMU8zbK7TXHXIgb7M5ZNDfACDbg3aujA==@newinventory.mongo.cosmos.azure.com:10255/?ssl=true&retrywrites=false&maxIdleTimeMS=120000&appName=@newinventory@";
+const url = "mongodb://newinventory:TgCL0gHQjtZkQAkfkXpNDBFka8Vxpi2BHp68FAN6g5ej4tJmBmcSUidlFP3tphsZd1DcqKKgH0RlACDb0L2NVw==@newinventory.mongo.cosmos.azure.com:10255/?ssl=true&retrywrites=false&maxIdleTimeMS=120000&appName=@newinventory@";
 
 const client = new MongoClient(url);
 client.connect().then(() => { console.log('Db connected') });
 const db = client.db(`newinventory`);
 
 //get all
-app.get('/item/:type', async (req, res) => {
+app.get('/item/:type', auth, async (req, res) => {
     const { offset, limit } = req.query;
     const collection = db.collection(req.params.type);
     const totalCount = await collection.count();
@@ -30,7 +29,7 @@ app.get('/item/:type', async (req, res) => {
 
 });
 // create
-app.post('/item/:type', async (req, res) => {
+app.post('/item/:type', auth, async (req, res) => {
     const collection = db.collection(req.params.type);
     const query = { title: req.body.title};
     const update = { $set: req.body };
@@ -40,7 +39,7 @@ app.post('/item/:type', async (req, res) => {
 
 })
 // //update
-app.post('/item/:type/:id', async (req, res) => {
+app.post('/item/:type/:id', auth, async (req, res) => {
     const collection = db.collection(req.params.type);
     const query = { _id: ObjectId(req.params.id)};
     const update = { $set: req.body };
@@ -50,7 +49,7 @@ app.post('/item/:type/:id', async (req, res) => {
 
 })
 // //find
-app.get('/item/:type/:id', async (req, res) => {
+app.get('/item/:type/:id', auth, async (req, res) => {
 
     const collection = db.collection(req.params.type);
 
@@ -60,7 +59,7 @@ app.get('/item/:type/:id', async (req, res) => {
     res.send(item);
 })
 // //delete
-app.delete('/item/:type/:id', async (req, res) => {
+app.delete('/item/:type/:id', auth, async (req, res) => {
 
     const collection = db.collection(req.params.type);
     await collection.deleteOne({
@@ -69,7 +68,7 @@ app.delete('/item/:type/:id', async (req, res) => {
     res.send({ message: 'success', code: 204 });
 })
 
-app.post('/search', async (req, res) => {
+app.post('/search', auth, async (req, res) => {
 
     const collectionBooks = db.collection('books');
     const collectionGames = db.collection('games');
@@ -117,6 +116,83 @@ app.get('/statistic', async (req, res) => {
     });
 
 });
+
+app.post('/signup', async(req,res)=>{
+    const emailExist = await db.collection('users').find({email: req.body.email}).toArray()
+    if(emailExist.length){
+        return res.status(400).json({
+            title:'Email already Exists',
+            error:'Email already Exists'
+        })
+    }
+
+    //Hash passwords
+    const salt = await bcrept.genSalt(10);
+    const hashedPassword = await bcrept.hash(req.body.password,salt)
+
+
+    const collection = db.collection('users');
+    const query = { email: req.body.email };
+    const update = { $set: {
+        password: hashedPassword,
+        email: req.body.email,
+        type: req.body.type,
+        full_name: req.body.full_name,
+        phone: req.body.phone,
+        }
+
+    };
+    const options = {upsert: true, new: true};
+    const user = await collection.updateOne(query, update, options);
+    res.send(user);
+})
+/**
+ * LOGIN
+ */
+app.post('/signin',async( req, res )=>{
+    // Checking if the uemail exists
+    const userData = await db.collection('users').find({email: req.body.email}).toArray();
+    const user = userData[0];
+    if(!user){
+        return res.status(401).send('Email or password is wrong')
+    }
+    //Password is correct
+    const validPass = await bcrept.compare(req.body.password, user.password);
+    if(!validPass){
+        return res.status(401).send('Email or password is wrong')
+    }
+    // Create and assign a token
+    const token = jwt.sign({_id:user._id},'asjhdasjhcasjkcnajksdcasklcmlk342r34ufjo',{expiresIn:'1h'})
+    return res.status(200).json({
+        title:'Login success',
+        token:token,
+        user: {
+            _id: user._id,
+            email: user.email,
+            type: user.type,
+            full_name: user.full_name
+        }
+    })
+})
+/**
+ * get user data
+ */
+app.get('/auth/user', auth, async( req, res )=>{
+    // Checking if the uemail exists
+    const userData = await db.collection('users').findOne({
+        _id: ObjectId(req.user._id)
+    });
+    return res.status(200).json({user: {
+        _id: userData._id,
+        email: userData.email,
+        full_name: userData.full_name,
+        type: userData.type
+    }});
+})
+
+
+
+
 
 app.listen(5000);
 

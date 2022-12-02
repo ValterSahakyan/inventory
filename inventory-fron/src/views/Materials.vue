@@ -40,7 +40,9 @@ export default {
   mounted() {
     axios.get(`http://localhost:5000/item/materials?offset=${(this.page - 1)*this.limit}&limit=${this.limit}`,{
       headers:{
-        'Accept': 'application/json'
+        'Accept': 'application/json',
+        'x-access-token': localStorage.getItem('token')
+
       }
     }).then((res) => {
       this.materials = res.data.items;
@@ -51,7 +53,9 @@ export default {
     page(){
       axios.get(`http://localhost:5000/item/materials?offset=${(this.page - 1)*this.limit}&limit=${this.limit}`,{
         headers:{
-          'Accept': 'application/json'
+          'Accept': 'application/json',
+          'x-access-token': localStorage.getItem('token')
+
         }
       }).then((res) => {
         this.materials = res.data.items;

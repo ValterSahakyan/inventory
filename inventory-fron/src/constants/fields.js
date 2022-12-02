@@ -261,5 +261,52 @@ export const fields ={
             type:'textarea',
             value: ''
         }
-    ]
+    ],
+    users: [
+        {
+            label: "Email",
+            name: "title",
+            placeholder: "title",
+            type: "input",
+            value: "",
+        },
+
+        {
+            label: "Full Name",
+            name: "name",
+            placeholder: "Full Name",
+            type: "input",
+            value: "",
+        },
+
+        {
+            label: "password",
+            name: "password",
+            placeholder: "password",
+            type: "input",
+            value: "",
+            column: "col-4",
+        },
+        {
+            label: "Type",
+            name: "type",
+            placeholder: "Open this select menu",
+            type: "select",
+            options: [
+                { id: 'user', text: "user" },
+                { id: 'admin', text: "admin" }
+            ],
+            column: "col-4",
+            value: "",
+        },
+
+        {
+            label: "Phone",
+            name: "phone",
+            placeholder: "Phone",
+            type: "input",
+            value: "",
+            column: "col-4",
+        },
+    ],
 }
