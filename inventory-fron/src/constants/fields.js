@@ -265,7 +265,7 @@ export const fields ={
     users: [
         {
             label: "Email",
-            name: "title",
+            name: "email",
             placeholder: "title",
             type: "input",
             value: "",
@@ -273,7 +273,7 @@ export const fields ={
 
         {
             label: "Full Name",
-            name: "name",
+            name: "full_name",
             placeholder: "Full Name",
             type: "input",
             value: "",
